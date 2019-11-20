@@ -1,0 +1,136 @@
+<html>
+  <body>
+	<div id = "notepad">
+	  
+	</div>
+
+	<button id="cleartasks">Clear Tasks</button>
+
+	<div id = "weather">
+	  
+	</div>
+  </body>
+</html>
+
+
+<style>
+	@import url('https://fonts.googleapis.com/css?family=Yeon+Sung&display=swap');
+
+	#notepad{
+	  width:300px;
+	  height:70%;
+	  position:absolute;
+	  bottom:0;
+	  margin:auto;
+	  left:0;
+	  right:0;
+	  background:repeating-linear-gradient(90deg,black,#320738);
+	  background-size:10px 20px;
+	  padding:10px;
+	}
+
+	#notepad input{
+	  width:100%;
+	  padding:10px 0px;
+	  margin:10px 0px;
+	  box-shadow:inset 0px 0px 10px black;
+	  background:rgba(0,0,0,0.5);
+	  font-family: 'Yeon Sung', cursive;
+	  text-indent:10px;
+	  font-size:20px;
+	  border:0;
+	  color:white;
+	}
+
+	#notepad input:focus{
+	  outline:none;
+	  box-shadow:0px 0px 10px white;
+	}
+
+	#weather{
+	  position:absolute;
+	  top:0;
+	  width:100%;
+	  height:50px;
+	  left:0;
+	  background:lightblue;
+	}
+</style>
+
+<script>
+var arr = {};
+var arrayman;
+var notepad = document.getElementById("notepad");
+var count = 1;
+var clearbutton = document.getElementById("cleartasks");
+clearbutton.addEventListener("click",cleartasks,false);
+
+
+if(window.localStorage.getItem("persons")){
+  var arrayman = JSON.parse(window.localStorage.getItem("persons"));
+    for(var key in arrayman){
+      var inputblock =  document.createElement("input");
+               inputblock.addEventListener("keyup",changeValue,false);
+      inputblock.setAttribute("id", "n" + count);
+      inputblock.value = arrayman[key];
+      count++;
+      notepad.append(inputblock);
+  } 
+}else{
+  var arr = {"n1":"","n2":"","n3":"","n4":"","n5":""};
+     for(var key in arr){
+      var inputblock =  document.createElement("input");
+  inputblock.addEventListener("keyup",changeValue,false);
+      inputblock.setAttribute("id", key);
+      notepad.append(inputblock);
+  } 
+  localStorage.setItem('persons', JSON.stringify(arr));
+}
+
+
+
+
+var persons = JSON.parse(localStorage.persons);
+
+
+function changeValue(){
+  persons[this.id] = this.value; 
+      
+  localStorage.setItem("persons", JSON.stringify(persons));  //put the object back
+
+}
+
+
+function cleartasks(){
+  localStorage.clear();
+  var notes = notepad.getElementsByTagName("input");
+  
+  for(var i = 0; i < notes.length;i++){
+    notes[i].value = "";
+  }
+}
+
+var el = document.getElementById("weather");
+
+/*Weather*/
+
+var xhr = new XMLHttpRequest();
+
+xhr.open("GET", "https://api.openweathermap.org/data/2.5/weather?lat=40.177780&lon=-74.584290&appid=f73299cc3d3bcb102e545dc126c5fa2c"); 
+
+xhr.send();
+
+
+//  Add a listener function to respond to the HTTP response
+xhr.addEventListener("readystatechange", function(){
+    if(this.readyState == 4 && this.status == 200){
+        var message = JSON.parse(this.response);
+        var temp = Math.round(1.8*(message.main.temp - 273) + 32) + " F°";
+      var newmessage = message.weather[0].description + " temp: " + temp;
+      console.log(message);
+      el.innerHTML = newmessage;
+    }
+});
+
+
+</script>
